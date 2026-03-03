@@ -1,0 +1,5 @@
+mountpoints:
+  /:
+    url: "https://author-p130360-e1585120.adobeaemcloud.com/bin/franklin.delivery/amarghioali/poc-ba-xwalk/main"
+    type: "markup"
+    suffix: ".html"
