@@ -1,0 +1,39 @@
+{
+  "variantName": "columns-info",
+  "baseBlock": "columns",
+  "version": "1.0.0",
+  "created": "2026-03-04T08:41:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.aig.co.jp/",
+    "originPage": "AIG Japan corporate homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "info-columns",
+    "imagePattern": "mixed"
+  },
+  "contentPattern": {
+    "structure": "text + buttons or image + text",
+    "buttonCount": 2,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "informational side-by-side layouts",
+      "CTA button pairs",
+      "text with image columns",
+      "stat card layouts"
+    ],
+    "notSuitableFor": [
+      "card grids",
+      "single-column text content"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/content/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-03-04T08:41:00.000Z"
+  }
+}

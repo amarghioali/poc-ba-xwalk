@@ -1,0 +1,124 @@
+/* Tabs Product Block - AIG Japan insurance product tabs */
+
+.tabs-product .tabs-product-list {
+  display: flex;
+  gap: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0 var(--spacing-s);
+  margin: 0;
+}
+
+.tabs-product .tabs-product-list button {
+  flex: 1 0 auto;
+  margin: 0;
+  border: 1px solid var(--aig-border-gray);
+  border-radius: 0;
+  padding: var(--spacing-xs) var(--spacing-s);
+  min-height: 60px;
+  background-color: transparent;
+  color: var(--aig-navy);
+  font-size: var(--body-font-size-s);
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  text-overflow: unset;
+  overflow: unset;
+  white-space: nowrap;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tabs-product .tabs-product-list button:hover {
+  background-color: var(--aig-light-gray);
+  opacity: 1;
+}
+
+.tabs-product .tabs-product-list button p {
+  margin: 0;
+}
+
+.tabs-product .tabs-product-list button[aria-selected='true'] {
+  background-color: var(--aig-light-gray);
+  color: var(--text-color);
+  border: 1px solid var(--aig-border-gray);
+  border-bottom: 1px solid transparent;
+  border-top: 4px solid var(--aig-navy);
+  cursor: default;
+}
+
+.tabs-product .tabs-product-list button[aria-selected='false'],
+.tabs-product .tabs-product-list button:not([aria-selected='true']) {
+  border-top: 1px solid var(--aig-border-gray);
+}
+
+.tabs-product .tabs-product-panel {
+  margin-top: 0;
+  padding: var(--spacing-s);
+  border: 0;
+  background-color: var(--aig-light-gray);
+  overflow: auto;
+}
+
+.tabs-product .tabs-product-panel[aria-hidden='true'] {
+  display: none;
+}
+
+/* Headings inside tab panels */
+.tabs-product .tabs-product-panel h3 {
+  text-align: center;
+  font-size: var(--heading-font-size-l);
+  margin-bottom: var(--spacing-s);
+}
+
+/* Links inside tab panels styled as product buttons */
+.tabs-product .tabs-product-panel a.button:any-link {
+  display: flex;
+  align-items: center;
+  min-height: 80px;
+  padding: var(--spacing-s) var(--spacing-m) var(--spacing-s) var(--spacing-xs);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid var(--aig-border-gray);
+  border-radius: var(--border-radius);
+  font-size: var(--body-font-size-s);
+  font-weight: 700;
+  box-shadow: var(--shadow-button);
+  text-decoration: none;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.tabs-product .tabs-product-panel a.button:hover {
+  opacity: 0.6;
+}
+
+/* Secondary CTA button in tab panel (e.g., "資料請求") */
+.tabs-product .tabs-product-panel a.button.secondary:any-link {
+  background-color: var(--aig-blue);
+  color: #fff;
+}
+
+@media (width >= 600px) {
+  .tabs-product .tabs-product-list button {
+    font-size: var(--body-font-size-s);
+  }
+}
+
+@media (width >= 900px) {
+  .tabs-product .tabs-product-list {
+    padding: 0 var(--spacing-s);
+  }
+
+  .tabs-product .tabs-product-list button {
+    font-size: var(--heading-font-size-l);
+    padding: var(--spacing-xs) var(--spacing-s);
+    min-height: 80px;
+  }
+
+  .tabs-product .tabs-product-panel {
+    padding: var(--spacing-s) var(--spacing-l);
+  }
+}
