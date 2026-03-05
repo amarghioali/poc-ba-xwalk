@@ -1,70 +1,46 @@
-/* Hero Corporate Block - AIG Japan full-width hero banner */
+/* Hero Corporate Block - AIG Japan full-width hero banner
+ *
+ * Replicates the original AIG hero behavior:
+ *   - Fixed 400px height, full-width edge-to-edge
+ *   - background-size: auto 100% → image height fills container, width is auto
+ *   - background-position: center → horizontally centered, overflow clipped
+ *   - Responsive: uses <picture> with <source media="(max-width: 768px)">
+ *     to switch between desktop and mobile images
+ */
 
+/* Remove wrapper constraints so hero goes edge-to-edge */
 .hero-corporate-container .hero-corporate-wrapper {
   max-width: unset;
   padding: 0;
 }
 
+/* Hero container: fixed height, overflow hidden, relative for image positioning */
 .hero-corporate {
   position: relative;
-  min-height: 250px;
-  display: flex;
-  align-items: flex-end;
+  height: 400px;
   overflow: hidden;
 }
 
+/* Picture element fills the hero container and centers its content */
 .hero-corporate picture {
   position: absolute;
-  z-index: 0;
   inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Image: height fills container (auto 100% equivalent), width auto (proportional).
+ * max-width: none overrides EDS default max-width: 100% so the image can
+ * extend beyond the container width and get clipped by overflow: hidden. */
 .hero-corporate img {
-  object-fit: cover;
-  width: 100%;
   height: 100%;
+  width: auto;
+  max-width: none;
 }
 
-.hero-corporate > div {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 36px 16px;
-}
-
-.hero-corporate h1,
-.hero-corporate h2,
-.hero-corporate h3 {
-  color: #fff;
-  margin: 0;
-  text-shadow: 1px 1px 4px rgb(0 0 0 / 40%);
-  font-size: var(--heading-font-size-xl);
-  line-height: 1.5;
-}
-
-.hero-corporate p {
-  color: #fff;
-  margin: var(--spacing-xs) 0 0;
-  text-shadow: 1px 1px 4px rgb(0 0 0 / 40%);
-}
-
-.hero-corporate a:any-link {
-  color: #fff;
-}
-
-@media (width >= 900px) {
+@media (width <= 768px) {
   .hero-corporate {
-    min-height: 400px;
-  }
-
-  .hero-corporate > div {
-    padding: 54px 32px;
-  }
-
-  .hero-corporate h1,
-  .hero-corporate h2 {
-    font-size: var(--heading-font-size-xxl);
+    height: 400px;
   }
 }

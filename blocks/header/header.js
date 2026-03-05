@@ -196,6 +196,15 @@ export default async function decorate(block) {
   if (brandLink) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
+    // Wrap "AIG" in logo box
+    const brandText = brandLink.textContent;
+    if (brandText.startsWith('AIG')) {
+      const aigBox = document.createElement('span');
+      aigBox.className = 'aig-logo-box';
+      aigBox.textContent = 'AIG';
+      brandLink.textContent = brandText.substring(3);
+      brandLink.prepend(aigBox);
+    }
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -213,6 +222,29 @@ export default async function decorate(block) {
     navSections.querySelectorAll('.button-container').forEach((buttonContainer) => {
       buttonContainer.classList.remove('button-container');
       buttonContainer.querySelector('.button').classList.remove('button');
+    });
+
+    // Add category icons to nav links
+    const navIconMap = {
+      ご契約者さま: '\ue912',
+      個人向け保険: '\ue923',
+      法人向け保険: '\ue90f',
+      ニュース: '\ue912',
+      企業情報: '\ue906',
+      採用情報: '\ue93d',
+    };
+    navSections.querySelectorAll('.default-content-wrapper > ul > li').forEach((li) => {
+      const link = li.querySelector(':scope > a');
+      if (link) {
+        const iconCode = navIconMap[link.textContent.trim()];
+        if (iconCode) {
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'nav-icon';
+          iconSpan.setAttribute('aria-hidden', 'true');
+          iconSpan.textContent = iconCode;
+          li.insertBefore(iconSpan, link);
+        }
+      }
     });
   }
 
@@ -241,6 +273,23 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+
+  // Compact header on scroll (desktop only)
+  if (isDesktop.matches) {
+    const scrollThreshold = 90;
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > scrollThreshold) {
+        navWrapper.classList.add('header-scrolled');
+      } else {
+        navWrapper.classList.remove('header-scrolled');
+      }
+    }, { passive: true });
+  }
+  isDesktop.addEventListener('change', (e) => {
+    if (!e.matches) {
+      navWrapper.classList.remove('header-scrolled');
+    }
+  });
 
   if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
     navWrapper.append(await buildBreadcrumbs());

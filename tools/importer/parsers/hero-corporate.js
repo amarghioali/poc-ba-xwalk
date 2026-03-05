@@ -6,68 +6,77 @@
  * Source: https://www.aig.co.jp/
  * Selector: .ace-heroimage.cmp-heroimage--width-full
  *
- * Block library: 1 column, 3 rows (name, image, text).
- * Model fields: image (reference), imageAlt (collapsed), text (richtext).
+ * The AIG hero uses two CSS background-image divs:
+ *   .cmp-heroimage-image.pc-only  → desktop image
+ *   .cmp-heroimage-image.sp-only  → mobile image (switched at 768px)
+ * Text is baked into the images (no HTML overlay).
  *
- * Source DOM uses CSS background-image on .cmp-heroimage-image divs
- * and optional text in .cmp-heroimage-content-wrap.
+ * Content model: 2 rows — desktop image, mobile image.
+ * The block JS combines them into a <picture> with media queries.
  */
 export default function parse(element, { document }) {
-  // Extract image: try <img> first, then background-image style
-  let imageEl = element.querySelector('.cmp-heroimage img, .cmp-heroimage picture');
+  /**
+   * Extract background-image URL from a div element.
+   * Prefers getComputedStyle (resolved URL), falls back to inline style
+   * with CSS unicode escape decoding (\2f → /).
+   */
+  function extractBgImage(div) {
+    if (!div) return null;
 
-  if (!imageEl) {
-    // Try extracting background-image from .cmp-heroimage-image (pc-only variant)
-    const bgDiv = element.querySelector('.cmp-heroimage-image.pc-only, .cmp-heroimage-image');
-    if (bgDiv) {
-      const style = bgDiv.getAttribute('style') || '';
-      const bgMatch = style.match(/background-image:\s*url\(["']?([^"')]+)["']?\)/i);
-      if (bgMatch) {
-        imageEl = document.createElement('img');
-        imageEl.src = bgMatch[1];
-        imageEl.alt = '';
-      }
+    // Prefer computed style — returns fully resolved URL
+    if (document.defaultView) {
+      const computed = document.defaultView.getComputedStyle(div);
+      const bgImage = computed.backgroundImage || '';
+      const match = bgImage.match(/url\(["']?([^"')]+)["']?\)/i);
+      if (match) return match[1];
     }
+
+    // Fall back to inline style (may contain CSS escapes like \2f)
+    const style = div.getAttribute('style') || '';
+    const match = style.match(/background-image:\s*url\(["']?([^"')]+)["']?\)/i);
+    if (match) {
+      // Decode CSS unicode escapes
+      return match[1].replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_, hex) =>
+        String.fromCodePoint(parseInt(hex, 16)));
+    }
+
+    return null;
   }
 
-  // Extract text content from the hero overlay area
-  const contentWrap = element.querySelector('.cmp-heroimage-content-wrap');
-  const textContent = [];
+  // Extract desktop (pc-only) and mobile (sp-only) background images
+  const pcDiv = element.querySelector('.cmp-heroimage-image.pc-only');
+  const spDiv = element.querySelector('.cmp-heroimage-image.sp-only');
 
-  if (contentWrap) {
-    const headings = contentWrap.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    headings.forEach((h) => textContent.push(h));
-
-    const paragraphs = contentWrap.querySelectorAll('p');
-    paragraphs.forEach((p) => textContent.push(p));
-
-    const links = contentWrap.querySelectorAll('a.cmp-button, a[class*="cta"]');
-    links.forEach((a) => textContent.push(a));
-
-    // If no specific elements found, take all child content
-    if (textContent.length === 0) {
-      const allChildren = contentWrap.querySelectorAll('*');
-      allChildren.forEach((child) => {
-        if (child.textContent.trim()) textContent.push(child);
-      });
-    }
-  }
+  const desktopUrl = extractBgImage(pcDiv || element.querySelector('.cmp-heroimage-image'));
+  const mobileUrl = extractBgImage(spDiv);
 
   const cells = [];
 
-  // Row 1: Image with field hint
-  const imageCell = document.createDocumentFragment();
-  imageCell.append(document.createComment(' field:image '));
-  if (imageEl) {
-    imageCell.append(imageEl);
+  // Row 1: Desktop image
+  const desktopCell = document.createDocumentFragment();
+  desktopCell.append(document.createComment(' field:image '));
+  if (desktopUrl) {
+    const img = document.createElement('img');
+    img.src = desktopUrl;
+    img.alt = '';
+    const p = document.createElement('p');
+    p.append(img);
+    desktopCell.append(p);
   }
-  cells.push([imageCell]);
+  cells.push([desktopCell]);
 
-  // Row 2: Text content with field hint
-  const textCell = document.createDocumentFragment();
-  textCell.append(document.createComment(' field:text '));
-  textContent.forEach((el) => textCell.append(el));
-  cells.push([textCell]);
+  // Row 2: Mobile image
+  const mobileCell = document.createDocumentFragment();
+  mobileCell.append(document.createComment(' field:mobileImage '));
+  if (mobileUrl) {
+    const img = document.createElement('img');
+    img.src = mobileUrl;
+    img.alt = '';
+    const p = document.createElement('p');
+    p.append(img);
+    mobileCell.append(p);
+  }
+  cells.push([mobileCell]);
 
   const block = WebImporter.Blocks.createBlock(document, {
     name: 'hero-corporate',

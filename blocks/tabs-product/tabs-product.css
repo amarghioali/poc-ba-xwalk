@@ -121,4 +121,33 @@
   .tabs-product .tabs-product-panel {
     padding: var(--spacing-s) var(--spacing-l);
   }
+
+  /* Product buttons in 3-column grid */
+  .tabs-product .tabs-product-panel > div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-s);
+  }
+
+  .tabs-product .tabs-product-panel > div > h3,
+  .tabs-product .tabs-product-panel > div > h4 {
+    grid-column: 1 / -1;
+  }
+
+  .tabs-product .tabs-product-panel > div > .button-container {
+    margin: 0;
+  }
+
+  /* Resource Request CTA button - full width, navy styling */
+  .tabs-product .tabs-product-panel > div > .button-container:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .tabs-product .tabs-product-panel > div > .button-container:last-child a.button:any-link {
+    background-color: var(--aig-navy);
+    color: #fff;
+    justify-content: center;
+    min-height: 60px;
+    font-size: var(--body-font-size-m);
+  }
 }

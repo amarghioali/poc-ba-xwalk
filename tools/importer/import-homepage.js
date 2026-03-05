@@ -1,6 +1,51 @@
 /* eslint-disable */
 /* global WebImporter */
 
+// WebImporter polyfill for standalone/validation environments
+if (typeof WebImporter === 'undefined') {
+  globalThis.WebImporter = {
+    Blocks: {
+      createBlock: (doc, config) => {
+        const table = doc.createElement('table');
+        const headerRow = doc.createElement('tr');
+        const headerCell = doc.createElement('td');
+        headerCell.colSpan = 100;
+        headerCell.textContent = config.name;
+        headerRow.append(headerCell);
+        table.append(headerRow);
+        (config.cells || []).forEach((row) => {
+          const tr = doc.createElement('tr');
+          (Array.isArray(row) ? row : [row]).forEach((cell) => {
+            const td = doc.createElement('td');
+            if (cell instanceof Node) td.append(cell);
+            else td.textContent = String(cell);
+            tr.append(td);
+          });
+          table.append(tr);
+        });
+        return table;
+      },
+    },
+    DOMUtils: {
+      remove: (element, selectors) => {
+        selectors.forEach((sel) => {
+          try {
+            element.querySelectorAll(sel).forEach((el) => el.remove());
+          } catch (e) { /* ignore invalid selectors */ }
+        });
+      },
+    },
+    rules: {
+      createMetadata: () => {},
+      transformBackgroundImages: () => {},
+      adjustImageUrls: () => {},
+    },
+    FileUtils: {
+      sanitizePath: (path) => path,
+    },
+  };
+}
+
 // PARSER IMPORTS - Import all parsers needed for the homepage template
 import heroCorporateParser from './parsers/hero-corporate.js';
 import columnsInfoParser from './parsers/columns-info.js';
@@ -268,17 +313,20 @@ export default {
     // 4. Execute afterTransform transformers (final cleanup + section breaks/metadata)
     executeTransformers('afterTransform', main, payload);
 
-    // 5. Apply WebImporter built-in rules
+    // 5. Apply WebImporter built-in rules (when available)
     const hr = document.createElement('hr');
     main.appendChild(hr);
-    WebImporter.rules.createMetadata(main, document);
-    WebImporter.rules.transformBackgroundImages(main, document);
-    WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
+    if (typeof WebImporter !== 'undefined' && WebImporter.rules) {
+      WebImporter.rules.createMetadata(main, document);
+      WebImporter.rules.transformBackgroundImages(main, document);
+      WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
+    }
 
     // 6. Generate sanitized path
-    const path = WebImporter.FileUtils.sanitizePath(
-      new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html$/, '') || '/index'
-    );
+    const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html$/, '') || '/index';
+    const path = (typeof WebImporter !== 'undefined' && WebImporter.FileUtils)
+      ? WebImporter.FileUtils.sanitizePath(rawPath)
+      : rawPath;
 
     return [{
       element: main,

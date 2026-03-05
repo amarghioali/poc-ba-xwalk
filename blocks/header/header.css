@@ -1,9 +1,31 @@
+/* AIG Icon Font */
+@font-face {
+  font-family: aig-icons;
+  src: url('../../fonts/aig-icons.woff') format('woff'),
+    url('../../fonts/aig-icons.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Nav category icons - hidden on mobile */
+header nav .nav-icon {
+  display: none;
+}
+
 /* header and nav layout */
 header .nav-wrapper {
   background-color: var(--background-color);
   width: 100%;
   z-index: 2;
   position: fixed;
+}
+
+@media (width >= 900px) {
+  header .nav-wrapper {
+    background: linear-gradient(to bottom, var(--aig-navy) 90px, #fff 90px);
+    box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
+  }
 }
 
 header nav {
@@ -32,14 +54,22 @@ header nav[aria-expanded='true'] {
 
 @media (width >= 900px) {
   header nav {
-    display: flex;
-    justify-content: space-between;
-    gap: 0 32px;
+    display: grid;
+    grid-template:
+      'brand tools' 90px
+      'sections sections' 70px / auto 1fr;
     max-width: 1264px;
     padding: 0 32px;
+    gap: 0;
+    height: 160px;
+    color: #fff;
+    align-items: center;
   }
 
   header nav[aria-expanded='true'] {
+    grid-template:
+      'brand tools' 90px
+      'sections sections' 70px / auto 1fr;
     min-height: 0;
     overflow: visible;
   }
@@ -149,6 +179,30 @@ header nav .nav-brand img {
   height: auto;
 }
 
+@media (width >= 900px) {
+  header .nav-brand {
+    font-size: 36px;
+    flex-basis: auto;
+  }
+
+  header nav .nav-brand a:any-link {
+    color: #fff;
+  }
+
+  /* AIG Logo Box */
+  header .nav-brand .aig-logo-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid currentcolor;
+    padding: 1px 6px;
+    margin-right: 6px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    line-height: 1.1;
+  }
+}
+
 /* sections */
 header nav .nav-sections {
   grid-area: sections;
@@ -183,9 +237,12 @@ header nav .nav-sections ul > li > ul > li {
 
 @media (width >= 900px) {
   header nav .nav-sections {
-    display: block;
+    display: flex;
     visibility: visible;
     white-space: nowrap;
+    color: var(--text-color);
+    align-items: center;
+    height: 100%;
   }
 
   header nav[aria-expanded='true'] .nav-sections {
@@ -220,13 +277,73 @@ header nav .nav-sections ul > li > ul > li {
 
   header nav .nav-sections ul {
     display: flex;
-    gap: 24px;
+    gap: 0;
     margin: 0;
+    justify-content: center;
+  }
+
+  header nav .nav-sections a:any-link {
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 13px;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+  }
+
+  /* Nav category icons (desktop) */
+  header nav .nav-sections .nav-icon {
+    display: block;
+    font-family: aig-icons, sans-serif;
+    font-size: 24px;
+    color: var(--aig-navy);
+    line-height: 1;
+    margin-bottom: 2px;
+    speak: never;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Dropdown chevrons */
+  header nav .nav-sections .default-content-wrapper > ul > li > a::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 3px solid currentcolor;
+    margin-left: 4px;
+    vertical-align: middle;
+    opacity: 0.5;
+  }
+
+  /* Vertical dividers between default-state nav items */
+  header nav .nav-sections .default-content-wrapper > ul > li::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+    border-left: 1px solid #e6e6e6;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li:last-child::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    border-right: 1px solid #e6e6e6;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul {
@@ -276,6 +393,42 @@ header nav .nav-tools .button {
   line-height: 0;
 }
 
+@media (width >= 900px) {
+  header nav .nav-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  header nav .nav-tools .default-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  header nav .nav-tools p {
+    margin: 0;
+  }
+
+  header nav .nav-tools .button {
+    line-height: 1.5;
+    font-size: var(--body-font-size-s);
+    font-weight: 400;
+    color: #fff;
+    padding: 0;
+    box-shadow: none;
+    white-space: nowrap;
+  }
+
+  header nav .nav-tools a:any-link {
+    color: #fff;
+  }
+
+  header nav .nav-tools .icon {
+    filter: brightness(0) invert(1);
+  }
+}
+
 /* breadcrumbs */
 header .breadcrumbs {
   display: none;
@@ -318,5 +471,111 @@ header .breadcrumbs ol li[aria-current] {
     display: block;
     max-width: 1264px;
     padding: 0 32px;
+  }
+}
+
+/* Compact scrolled header (desktop) */
+@media (width >= 900px) {
+  header .nav-wrapper.header-scrolled {
+    background: #fff;
+    box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
+    transition: background 0.3s ease;
+  }
+
+  header .nav-wrapper.header-scrolled nav {
+    grid-template:
+      'brand sections tools' 77px / auto 1fr auto;
+    height: 77px;
+    color: var(--text-color);
+  }
+
+  header .nav-wrapper.header-scrolled nav[aria-expanded='true'] {
+    grid-template:
+      'brand sections tools' 77px / auto 1fr auto;
+    height: 77px;
+  }
+
+  /* Brand: navy text instead of white */
+  header .nav-wrapper.header-scrolled .nav-brand {
+    font-size: 18px;
+  }
+
+  header .nav-wrapper.header-scrolled .nav-brand a:any-link {
+    color: var(--text-color);
+  }
+
+  header .nav-wrapper.header-scrolled .nav-brand .aig-logo-box {
+    border-color: var(--aig-navy);
+    color: var(--aig-navy);
+    padding: 0 4px;
+    letter-spacing: 2px;
+  }
+
+  /* Sections: nav links with vertical dividers */
+  header .nav-wrapper.header-scrolled .nav-sections {
+    color: var(--text-color);
+    justify-content: center;
+  }
+
+  header .nav-wrapper.header-scrolled .nav-sections a:any-link {
+    color: var(--text-color);
+    font-size: 14px;
+  }
+
+  header .nav-wrapper.header-scrolled .nav-sections ul {
+    gap: 0;
+  }
+
+  header .nav-wrapper.header-scrolled .nav-sections .default-content-wrapper > ul > li {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 77px;
+    padding: 0 20px;
+    position: relative;
+  }
+
+  /* Hide category icons in scrolled state */
+  header .nav-wrapper.header-scrolled .nav-icon {
+    display: none;
+  }
+
+  /* Vertical dividers between nav items */
+  header .nav-wrapper.header-scrolled .nav-sections .default-content-wrapper > ul > li::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+    border-left: 1px solid #e6e6e6;
+  }
+
+  header .nav-wrapper.header-scrolled .nav-sections .default-content-wrapper > ul > li:last-child::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    border-right: 1px solid #e6e6e6;
+  }
+
+  /* Tools: hide text links, keep only search icon */
+  header .nav-wrapper.header-scrolled .nav-tools .default-content-wrapper > p {
+    display: none;
+  }
+
+  /* Show search icon paragraph (last child with .icon) */
+  header .nav-wrapper.header-scrolled .nav-tools .default-content-wrapper > p:last-child {
+    display: block;
+  }
+
+  header .nav-wrapper.header-scrolled .nav-tools a:any-link {
+    color: var(--text-color);
+  }
+
+  header .nav-wrapper.header-scrolled .nav-tools .icon {
+    filter: none;
   }
 }

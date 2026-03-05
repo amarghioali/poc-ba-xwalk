@@ -19,9 +19,9 @@
   --light-color: #f8f8f8;
   --dark-color: #001871;
 
-  /* Fonts - Japanese system font stack */
-  --body-font-family: "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "メイリオ", meiryo, arial, sans-serif;
-  --heading-font-family: "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "メイリオ", meiryo, arial, sans-serif;
+  /* Fonts - Japanese font stack (UD新ゴ R is the original AIG web font) */
+  --body-font-family: "UD新ゴ R", arial, "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "メイリオ", meiryo, sans-serif;
+  --heading-font-family: "UD新ゴ R", arial, "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "メイリオ", meiryo, sans-serif;
 
   /* Body sizes (mobile-first) */
   --body-font-size-m: 16px;
@@ -109,8 +109,12 @@ footer .footer[data-block-status="loaded"] {
 }
 
 @media (width >= 900px) {
+  :root {
+    --header-height: 160px;
+  }
+
   body[data-breadcrumbs] {
-    --header-height: calc(var(--nav-height) + var(--breadcrumbs-height));
+    --header-height: calc(160px + var(--breadcrumbs-height));
   }
 }
 
@@ -292,6 +296,26 @@ main > .section:first-of-type {
   main > .section > div {
     padding: 0 32px;
   }
+}
+
+/* Section headings - centered with blue underline */
+main .section h2 {
+  text-align: center;
+}
+
+main .section h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background-color: var(--aig-navy);
+  margin: var(--spacing-xs) auto 0;
+}
+
+/* Hide unprocessed section-metadata blocks */
+div.section-metadata,
+.section-metadata-wrapper {
+  display: none;
 }
 
 /* Section metadata variants */

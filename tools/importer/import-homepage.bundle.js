@@ -1,25 +1,8 @@
 var CustomImportScript = (() => {
   var __defProp = Object.defineProperty;
-  var __defProps = Object.defineProperties;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a, b) => {
-    for (var prop in b || (b = {}))
-      if (__hasOwnProp.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b)) {
-        if (__propIsEnum.call(b, prop))
-          __defNormalProp(a, prop, b[prop]);
-      }
-    return a;
-  };
-  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
@@ -42,46 +25,48 @@ var CustomImportScript = (() => {
 
   // tools/importer/parsers/hero-corporate.js
   function parse(element, { document: document2 }) {
-    let imageEl = element.querySelector(".cmp-heroimage img, .cmp-heroimage picture");
-    if (!imageEl) {
-      const bgDiv = element.querySelector(".cmp-heroimage-image.pc-only, .cmp-heroimage-image");
-      if (bgDiv) {
-        const style = bgDiv.getAttribute("style") || "";
-        const bgMatch = style.match(/background-image:\s*url\(["']?([^"')]+)["']?\)/i);
-        if (bgMatch) {
-          imageEl = document2.createElement("img");
-          imageEl.src = bgMatch[1];
-          imageEl.alt = "";
-        }
+    function extractBgImage(div) {
+      if (!div) return null;
+      if (document2.defaultView) {
+        const computed = document2.defaultView.getComputedStyle(div);
+        const bgImage = computed.backgroundImage || "";
+        const match2 = bgImage.match(/url\(["']?([^"')]+)["']?\)/i);
+        if (match2) return match2[1];
       }
-    }
-    const contentWrap = element.querySelector(".cmp-heroimage-content-wrap");
-    const textContent = [];
-    if (contentWrap) {
-      const headings = contentWrap.querySelectorAll("h1, h2, h3, h4, h5, h6");
-      headings.forEach((h) => textContent.push(h));
-      const paragraphs = contentWrap.querySelectorAll("p");
-      paragraphs.forEach((p) => textContent.push(p));
-      const links = contentWrap.querySelectorAll('a.cmp-button, a[class*="cta"]');
-      links.forEach((a) => textContent.push(a));
-      if (textContent.length === 0) {
-        const allChildren = contentWrap.querySelectorAll("*");
-        allChildren.forEach((child) => {
-          if (child.textContent.trim()) textContent.push(child);
-        });
+      const style = div.getAttribute("style") || "";
+      const match = style.match(/background-image:\s*url\(["']?([^"')]+)["']?\)/i);
+      if (match) {
+        return match[1].replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
       }
+      return null;
     }
+    const pcDiv = element.querySelector(".cmp-heroimage-image.pc-only");
+    const spDiv = element.querySelector(".cmp-heroimage-image.sp-only");
+    const desktopUrl = extractBgImage(pcDiv || element.querySelector(".cmp-heroimage-image"));
+    const mobileUrl = extractBgImage(spDiv);
     const cells = [];
-    const imageCell = document2.createDocumentFragment();
-    imageCell.append(document2.createComment(" field:image "));
-    if (imageEl) {
-      imageCell.append(imageEl);
+    const desktopCell = document2.createDocumentFragment();
+    desktopCell.append(document2.createComment(" field:image "));
+    if (desktopUrl) {
+      const img = document2.createElement("img");
+      img.src = desktopUrl;
+      img.alt = "";
+      const p = document2.createElement("p");
+      p.append(img);
+      desktopCell.append(p);
     }
-    cells.push([imageCell]);
-    const textCell = document2.createDocumentFragment();
-    textCell.append(document2.createComment(" field:text "));
-    textContent.forEach((el) => textCell.append(el));
-    cells.push([textCell]);
+    cells.push([desktopCell]);
+    const mobileCell = document2.createDocumentFragment();
+    mobileCell.append(document2.createComment(" field:mobileImage "));
+    if (mobileUrl) {
+      const img = document2.createElement("img");
+      img.src = mobileUrl;
+      img.alt = "";
+      const p = document2.createElement("p");
+      p.append(img);
+      mobileCell.append(p);
+    }
+    cells.push([mobileCell]);
     const block = WebImporter.Blocks.createBlock(document2, {
       name: "hero-corporate",
       cells
@@ -105,9 +90,8 @@ var CustomImportScript = (() => {
       const cellContent = document2.createDocumentFragment();
       const buttons = item.querySelectorAll(".cmp-button");
       buttons.forEach((btn) => {
-        var _a, _b, _c;
-        const href = btn.getAttribute("href") || ((_a = btn.closest("a")) == null ? void 0 : _a.getAttribute("href"));
-        const text = (_c = (_b = btn.querySelector(".cmp-button-main__text")) == null ? void 0 : _b.textContent) == null ? void 0 : _c.trim();
+        const href = btn.getAttribute("href") || btn.closest("a")?.getAttribute("href");
+        const text = btn.querySelector(".cmp-button-main__text")?.textContent?.trim();
         if (href && text) {
           const p = document2.createElement("p");
           const a = document2.createElement("a");
@@ -339,12 +323,11 @@ var CustomImportScript = (() => {
         contentCell.append(document2.createComment(" field:content_richtext "));
         const buttons = panel.querySelectorAll(".cmp-button");
         buttons.forEach((btn) => {
-          var _a, _b;
-          const anchor = btn.closest("a") || ((_a = btn.parentElement) == null ? void 0 : _a.closest("a"));
-          const href = (anchor == null ? void 0 : anchor.getAttribute("href")) || btn.getAttribute("href");
+          const anchor = btn.closest("a") || btn.parentElement?.closest("a");
+          const href = anchor?.getAttribute("href") || btn.getAttribute("href");
           const iconSpan = btn.querySelector(".cmp-button-main__icon");
           const textSpan = btn.querySelector(".cmp-button-main__text");
-          const text = (_b = textSpan == null ? void 0 : textSpan.textContent) == null ? void 0 : _b.trim();
+          const text = textSpan?.textContent?.trim();
           if (href && text) {
             const p = document2.createElement("p");
             const a = document2.createElement("a");
@@ -361,9 +344,8 @@ var CustomImportScript = (() => {
         });
         const subHeadings = panel.querySelectorAll(".ace-title .cmp-title__text");
         subHeadings.forEach((sh) => {
-          var _a;
           if (heading && sh === heading) return;
-          const h = document2.createElement(((_a = sh.tagName) == null ? void 0 : _a.toLowerCase()) || "h4");
+          const h = document2.createElement(sh.tagName?.toLowerCase() || "h4");
           h.textContent = sh.textContent.trim();
           contentCell.append(h);
         });
@@ -380,6 +362,20 @@ var CustomImportScript = (() => {
   // tools/importer/transformers/aig-cleanup.js
   function transform(hookName, element, payload) {
     if (hookName === "beforeTransform") {
+      element.querySelectorAll("[data-cmp-src]").forEach((div) => {
+        const img = div.querySelector("img");
+        if (!img || !img.src.includes("blank.gif")) return;
+        const damPath = div.getAttribute("data-asset");
+        if (damPath) {
+          img.src = new URL(damPath, payload.url).href;
+        } else {
+          const template = div.getAttribute("data-cmp-src");
+          if (template) {
+            img.src = new URL(template.replace(/\{\.width\}/g, ".800"), payload.url).href;
+          }
+        }
+        img.classList.remove("cmp-image__image--is-loading");
+      });
       WebImporter.DOMUtils.remove(element, [
         ".cmp-float-cta",
         "#onetrust-consent-sdk",
@@ -438,6 +434,53 @@ var CustomImportScript = (() => {
   }
 
   // tools/importer/import-homepage.js
+  if (typeof WebImporter === "undefined") {
+    globalThis.WebImporter = {
+      Blocks: {
+        createBlock: (doc, config) => {
+          const table = doc.createElement("table");
+          const headerRow = doc.createElement("tr");
+          const headerCell = doc.createElement("td");
+          headerCell.colSpan = 100;
+          headerCell.textContent = config.name;
+          headerRow.append(headerCell);
+          table.append(headerRow);
+          (config.cells || []).forEach((row) => {
+            const tr = doc.createElement("tr");
+            (Array.isArray(row) ? row : [row]).forEach((cell) => {
+              const td = doc.createElement("td");
+              if (cell instanceof Node) td.append(cell);
+              else td.textContent = String(cell);
+              tr.append(td);
+            });
+            table.append(tr);
+          });
+          return table;
+        }
+      },
+      DOMUtils: {
+        remove: (element, selectors) => {
+          selectors.forEach((sel) => {
+            try {
+              element.querySelectorAll(sel).forEach((el) => el.remove());
+            } catch (e) {
+            }
+          });
+        }
+      },
+      rules: {
+        createMetadata: () => {
+        },
+        transformBackgroundImages: () => {
+        },
+        adjustImageUrls: () => {
+        }
+      },
+      FileUtils: {
+        sanitizePath: (path) => path
+      }
+    };
+  }
   var parsers = {
     "hero-corporate": parse,
     "columns-info": parse2,
@@ -605,9 +648,10 @@ var CustomImportScript = (() => {
     transform2
   ];
   function executeTransformers(hookName, element, payload) {
-    const enhancedPayload = __spreadProps(__spreadValues({}, payload), {
+    const enhancedPayload = {
+      ...payload,
       template: PAGE_TEMPLATE
-    });
+    };
     transformers.forEach((transformerFn) => {
       try {
         transformerFn.call(null, hookName, element, enhancedPayload);
@@ -661,12 +705,13 @@ var CustomImportScript = (() => {
       executeTransformers("afterTransform", main, payload);
       const hr = document2.createElement("hr");
       main.appendChild(hr);
-      WebImporter.rules.createMetadata(main, document2);
-      WebImporter.rules.transformBackgroundImages(main, document2);
-      WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
-      const path = WebImporter.FileUtils.sanitizePath(
-        new URL(params.originalURL).pathname.replace(/\/$/, "").replace(/\.html$/, "") || "/index"
-      );
+      if (typeof WebImporter !== "undefined" && WebImporter.rules) {
+        WebImporter.rules.createMetadata(main, document2);
+        WebImporter.rules.transformBackgroundImages(main, document2);
+        WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
+      }
+      const rawPath = new URL(params.originalURL).pathname.replace(/\/$/, "").replace(/\.html$/, "") || "/index";
+      const path = typeof WebImporter !== "undefined" && WebImporter.FileUtils ? WebImporter.FileUtils.sanitizePath(rawPath) : rawPath;
       return [{
         element: main,
         path,

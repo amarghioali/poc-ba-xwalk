@@ -28,11 +28,11 @@
   display: flex;
   align-items: center;
   min-height: 80px;
-  padding: var(--spacing-s) var(--spacing-m) var(--spacing-s) var(--spacing-xs);
-  background-color: var(--aig-navy);
+  padding: 20px 40px 20px 24px;
+  background-color: var(--aig-blue);
   color: #fff;
-  border: 1px solid var(--aig-border-gray);
-  border-radius: var(--border-radius);
+  border: none;
+  border-radius: 8px;
   font-size: var(--body-font-size-s);
   font-weight: 700;
   text-decoration: none;
@@ -40,6 +40,7 @@
   white-space: normal;
   text-align: left;
   line-height: 1.4;
+  gap: 12px;
 }
 
 .columns-info a.button.secondary:any-link {

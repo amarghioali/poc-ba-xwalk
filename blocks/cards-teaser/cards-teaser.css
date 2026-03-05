@@ -24,6 +24,11 @@
   padding: var(--spacing-m) var(--spacing-s);
 }
 
+/* Hide block variant label (first card-body with "card" text) */
+.cards-teaser > ul > li > .cards-teaser-card-body:first-child {
+  display: none;
+}
+
 .cards-teaser .cards-teaser-card-body p {
   margin: 0 0 var(--spacing-xs);
   line-height: 1.6;
@@ -35,12 +40,21 @@
   font-weight: 700;
 }
 
-.cards-teaser .cards-teaser-card-body a:any-link {
+.cards-teaser .cards-teaser-card-body a:any-link,
+.cards-teaser .cards-teaser-card-body a.button:any-link {
   color: var(--aig-navy);
   font-weight: 700;
   text-decoration: none;
   font-size: var(--body-font-size-m);
   line-height: 1.5;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+  text-align: left;
 }
 
 .cards-teaser .cards-teaser-card-body a:hover {
@@ -82,5 +96,42 @@
 
   .cards-teaser > ul > li img {
     aspect-ratio: 16 / 10;
+  }
+
+  /* Single-card blocks in sections: lay wrappers in a 3-column grid */
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1120px;
+    margin: 40px auto;
+    padding: 0 32px;
+    box-sizing: border-box;
+  }
+
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) > .default-content-wrapper {
+    flex-basis: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) > .cards-teaser-wrapper {
+    flex: 0 0 calc(33.333% - 12px);
+    margin: 6px;
+    max-width: calc(33.333% - 12px);
+    padding: 0;
+  }
+
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) > .cards-teaser-wrapper .cards-teaser > ul {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cards-teaser section headings - left aligned */
+  .section.cards-teaser-container h2 {
+    text-align: left;
+  }
+
+  .section.cards-teaser-container h2::after {
+    margin: var(--spacing-xs) 0 0;
   }
 }
