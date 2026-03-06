@@ -1,0 +1,31 @@
+/* Hero Corporate Block - AIG Japan full-width hero banner
+ *
+ * Uses CSS background-image to exactly match the original AIG site:
+ *   - Fixed 400px height, full-width edge-to-edge
+ *   - background-size: auto 100% — image height fills container, width proportional
+ *   - background-position: center — horizontally centered, overflow clipped
+ *   - Responsive: CSS media query switches desktop/mobile image at 768px
+ *     (no flash/delay unlike <picture>/<source> approach)
+ */
+
+/* Remove wrapper constraints so hero goes edge-to-edge */
+.hero-corporate-container .hero-corporate-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+/* Hero container: CSS background-image matching original site exactly */
+.hero-corporate {
+  height: 400px;
+  background-image: var(--hero-bg-desktop);
+  background-size: auto 100%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+
+/* Mobile: switch to mobile image below 768px */
+@media (width < 768px) {
+  .hero-corporate {
+    background-image: var(--hero-bg-mobile, var(--hero-bg-desktop));
+  }
+}

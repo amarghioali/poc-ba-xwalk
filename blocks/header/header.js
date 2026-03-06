@@ -185,10 +185,16 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
+  // Assign nav classes by content (EDS fragment decoration may reorder sections)
+  const sections = [...nav.querySelectorAll(':scope > .section')];
+  sections.forEach((section, i) => {
+    if (i === 0) {
+      section.classList.add('nav-brand');
+    } else if (section.querySelector('.default-content-wrapper > ul')) {
+      section.classList.add('nav-sections');
+    } else {
+      section.classList.add('nav-tools');
+    }
   });
 
   const navBrand = nav.querySelector('.nav-brand');
@@ -196,6 +202,15 @@ export default async function decorate(block) {
   if (brandLink) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
+    // Wrap "AIG" in logo box
+    const brandText = brandLink.textContent;
+    if (brandText.startsWith('AIG')) {
+      const aigBox = document.createElement('span');
+      aigBox.className = 'aig-logo-box';
+      aigBox.textContent = 'AIG';
+      brandLink.textContent = brandText.substring(3);
+      brandLink.prepend(aigBox);
+    }
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -214,13 +229,82 @@ export default async function decorate(block) {
       buttonContainer.classList.remove('button-container');
       buttonContainer.querySelector('.button').classList.remove('button');
     });
+
+    // Add category icons to nav links
+    const navIconMap = {
+      ご契約者さま: '\ue912',
+      個人向け保険: '\ue923',
+      法人向け保険: '\ue90f',
+      ニュース: '\ue912',
+      企業情報: '\ue906',
+      採用情報: '\ue93d',
+    };
+    navSections.querySelectorAll('.default-content-wrapper > ul > li').forEach((li) => {
+      const link = li.querySelector(':scope > a');
+      if (link) {
+        const iconCode = navIconMap[link.textContent.trim()];
+        if (iconCode) {
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'nav-icon';
+          iconSpan.setAttribute('aria-hidden', 'true');
+          iconSpan.textContent = iconCode;
+          li.insertBefore(iconSpan, link);
+        }
+      }
+    });
   }
 
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
     const search = navTools.querySelector('a[href*="search"]');
-    if (search && search.textContent === '') {
+    if (search) {
       search.setAttribute('aria-label', 'Search');
+      const searchP = search.closest('p');
+
+      // Build search dropdown panel
+      const searchDropdown = document.createElement('div');
+      searchDropdown.className = 'search-dropdown';
+      searchDropdown.innerHTML = `<input type="search" placeholder="商品名やキーワードを入力" aria-label="Search">
+        <button type="button" class="search-dropdown-btn">検索</button>`;
+
+      // Toggle dropdown on search icon click
+      search.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isOpen = searchDropdown.classList.contains('open');
+        searchDropdown.classList.toggle('open');
+        if (searchP) searchP.classList.toggle('search-open');
+        if (!isOpen) {
+          searchDropdown.querySelector('input').focus();
+        }
+      });
+
+      // Close on Escape
+      searchDropdown.addEventListener('keydown', (e) => {
+        if (e.code === 'Escape') {
+          searchDropdown.classList.remove('open');
+          if (searchP) searchP.classList.remove('search-open');
+          search.focus();
+        }
+      });
+
+      // Search button action
+      searchDropdown.querySelector('button').addEventListener('click', () => {
+        const query = searchDropdown.querySelector('input').value.trim();
+        if (query) {
+          window.location.href = `/sonpo/search?q=${encodeURIComponent(query)}`;
+        }
+      });
+
+      // Enter key in input triggers search
+      searchDropdown.querySelector('input').addEventListener('keydown', (e) => {
+        if (e.code === 'Enter') {
+          e.preventDefault();
+          searchDropdown.querySelector('button').click();
+        }
+      });
+
+      // Store reference for later appending to navWrapper
+      nav.searchDropdown = searchDropdown;
     }
   }
 
@@ -240,7 +324,25 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
+  if (nav.searchDropdown) navWrapper.append(nav.searchDropdown);
   block.append(navWrapper);
+
+  // Compact header on scroll (desktop only)
+  if (isDesktop.matches) {
+    const scrollThreshold = 90;
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > scrollThreshold) {
+        navWrapper.classList.add('header-scrolled');
+      } else {
+        navWrapper.classList.remove('header-scrolled');
+      }
+    }, { passive: true });
+  }
+  isDesktop.addEventListener('change', (e) => {
+    if (!e.matches) {
+      navWrapper.classList.remove('header-scrolled');
+    }
+  });
 
   if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
     navWrapper.append(await buildBreadcrumbs());

@@ -26,6 +26,7 @@
   "devDependencies": {
     "@babel/core": "7.23.7",
     "@babel/eslint-parser": "7.28.0",
+    "archiver": "^7.0.1",
     "chai": "5.0.0",
     "eslint": "8.57.1",
     "eslint-config-airbnb-base": "15.0.0",

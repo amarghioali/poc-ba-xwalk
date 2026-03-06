@@ -1,0 +1,137 @@
+/* Cards Teaser Block - AIG Japan teaser/news cards */
+
+.cards-teaser > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-s);
+}
+
+.cards-teaser > ul > li {
+  border: 0;
+  background-color: var(--background-color);
+  box-shadow: 0 3px 6px rgb(0 0 0 / 10%);
+  overflow: hidden;
+}
+
+.cards-teaser > ul > li:hover {
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+}
+
+.cards-teaser .cards-teaser-card-body {
+  padding: var(--spacing-m) var(--spacing-s);
+}
+
+/* Hide block variant label (first card-body with "card" text) */
+.cards-teaser > ul > li > .cards-teaser-card-body:first-child {
+  display: none;
+}
+
+.cards-teaser .cards-teaser-card-body p {
+  margin: 0 0 var(--spacing-xs);
+  line-height: 1.6;
+}
+
+/* Card titles */
+.cards-teaser .cards-teaser-card-body strong {
+  color: var(--aig-navy);
+  font-weight: 700;
+}
+
+.cards-teaser .cards-teaser-card-body a:any-link,
+.cards-teaser .cards-teaser-card-body a.button:any-link {
+  color: var(--aig-navy);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: var(--body-font-size-m);
+  line-height: 1.5;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+  text-align: left;
+}
+
+.cards-teaser .cards-teaser-card-body a:hover {
+  text-decoration: underline;
+}
+
+/* News tag badges */
+.cards-teaser .cards-teaser-card-body strong:only-child {
+  display: inline-block;
+  font-size: var(--body-font-size-xs);
+  color: var(--aig-navy);
+  border: 1px solid var(--aig-navy);
+  padding: 6px var(--spacing-xs);
+  min-width: 120px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.cards-teaser .cards-teaser-card-image {
+  line-height: 0;
+}
+
+.cards-teaser > ul > li img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+@media (width >= 600px) {
+  .cards-teaser > ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width >= 900px) {
+  .cards-teaser > ul {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cards-teaser > ul > li img {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Single-card blocks in sections: lay wrappers in a 3-column grid */
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1120px;
+    margin: 40px auto;
+    padding: 0 32px;
+    box-sizing: border-box;
+  }
+
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) > .default-content-wrapper {
+    flex-basis: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) > .cards-teaser-wrapper {
+    flex: 0 0 calc(33.333% - 12px);
+    margin: 6px;
+    max-width: calc(33.333% - 12px);
+    padding: 0;
+  }
+
+  .section.cards-teaser-container:has(.cards-teaser-wrapper + .cards-teaser-wrapper + .cards-teaser-wrapper) > .cards-teaser-wrapper .cards-teaser > ul {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cards-teaser section headings - left aligned */
+  .section.cards-teaser-container h2 {
+    text-align: left;
+  }
+
+  .section.cards-teaser-container h2::after {
+    margin: var(--spacing-xs) 0 0;
+  }
+}
