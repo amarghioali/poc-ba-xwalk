@@ -120,15 +120,11 @@ function setupHeroEarly(main) {
   const hero = main.querySelector('.hero-corporate');
   if (!hero) return;
 
-  const row = hero.children[0];
-  if (!row) return;
-
-  const cols = [...row.children];
-  const desktopImg = cols[0]?.querySelector('img');
-  const mobileImg = cols[1]?.querySelector('img');
+  const rows = [...hero.children];
+  const desktopImg = rows[0]?.querySelector('img');
+  const mobileImg = rows[1]?.querySelector('img');
 
   if (desktopImg) {
-    // Set CSS custom properties early so background-image is defined when CSS loads
     hero.style.setProperty('--hero-bg-desktop', `url('${desktopImg.src}')`);
 
     // Preload the hero image with high priority
@@ -143,8 +139,8 @@ function setupHeroEarly(main) {
     hero.style.setProperty('--hero-bg-mobile', `url('${mobileImg.src}')`);
   }
 
-  // Hide content row to avoid flash of unstyled images
-  row.style.display = 'none';
+  // Hide content rows to avoid flash of unstyled images
+  rows.forEach((row) => { row.style.display = 'none'; });
 }
 
 /**
