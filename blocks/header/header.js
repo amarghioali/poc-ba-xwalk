@@ -257,8 +257,54 @@ export default async function decorate(block) {
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
     const search = navTools.querySelector('a[href*="search"]');
-    if (search && search.textContent === '') {
+    if (search) {
       search.setAttribute('aria-label', 'Search');
+      const searchP = search.closest('p');
+
+      // Build search dropdown panel
+      const searchDropdown = document.createElement('div');
+      searchDropdown.className = 'search-dropdown';
+      searchDropdown.innerHTML = `<input type="search" placeholder="商品名やキーワードを入力" aria-label="Search">
+        <button type="button" class="search-dropdown-btn">検索</button>`;
+
+      // Toggle dropdown on search icon click
+      search.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isOpen = searchDropdown.classList.contains('open');
+        searchDropdown.classList.toggle('open');
+        if (searchP) searchP.classList.toggle('search-open');
+        if (!isOpen) {
+          searchDropdown.querySelector('input').focus();
+        }
+      });
+
+      // Close on Escape
+      searchDropdown.addEventListener('keydown', (e) => {
+        if (e.code === 'Escape') {
+          searchDropdown.classList.remove('open');
+          if (searchP) searchP.classList.remove('search-open');
+          search.focus();
+        }
+      });
+
+      // Search button action
+      searchDropdown.querySelector('button').addEventListener('click', () => {
+        const query = searchDropdown.querySelector('input').value.trim();
+        if (query) {
+          window.location.href = `/sonpo/search?q=${encodeURIComponent(query)}`;
+        }
+      });
+
+      // Enter key in input triggers search
+      searchDropdown.querySelector('input').addEventListener('keydown', (e) => {
+        if (e.code === 'Enter') {
+          e.preventDefault();
+          searchDropdown.querySelector('button').click();
+        }
+      });
+
+      // Store reference for later appending to navWrapper
+      nav.searchDropdown = searchDropdown;
     }
   }
 
@@ -278,6 +324,7 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
+  if (nav.searchDropdown) navWrapper.append(nav.searchDropdown);
   block.append(navWrapper);
 
   // Compact header on scroll (desktop only)
