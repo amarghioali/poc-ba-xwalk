@@ -127,7 +127,6 @@ function setupHeroEarly(main) {
   if (desktopImg) {
     hero.style.setProperty('--hero-bg-desktop', `url('${desktopImg.src}')`);
 
-    // Preload the hero image with high priority
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
