@@ -1,11 +1,11 @@
 /* Hero Corporate Block - AIG Japan full-width hero banner
  *
- * Replicates the original AIG hero behavior:
+ * Uses CSS background-image to exactly match the original AIG site:
  *   - Fixed 400px height, full-width edge-to-edge
- *   - background-size: auto 100% → image height fills container, width is auto
- *   - background-position: center → horizontally centered, overflow clipped
- *   - Responsive: uses <picture> with <source media="(max-width: 768px)">
- *     to switch between desktop and mobile images
+ *   - background-size: auto 100% — image height fills container, width proportional
+ *   - background-position: center — horizontally centered, overflow clipped
+ *   - Responsive: CSS media query switches desktop/mobile image at 768px
+ *     (no flash/delay unlike <picture>/<source> approach)
  */
 
 /* Remove wrapper constraints so hero goes edge-to-edge */
@@ -14,33 +14,18 @@
   padding: 0;
 }
 
-/* Hero container: fixed height, overflow hidden, relative for image positioning */
+/* Hero container: CSS background-image matching original site exactly */
 .hero-corporate {
-  position: relative;
   height: 400px;
-  overflow: hidden;
+  background-image: var(--hero-bg-desktop);
+  background-size: auto 100%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
 }
 
-/* Picture element fills the hero container and centers its content */
-.hero-corporate picture {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Image: height fills container (auto 100% equivalent), width auto (proportional).
- * max-width: none overrides EDS default max-width: 100% so the image can
- * extend beyond the container width and get clipped by overflow: hidden. */
-.hero-corporate img {
-  height: 100%;
-  width: auto;
-  max-width: none;
-}
-
-@media (width <= 768px) {
+/* Mobile: switch to mobile image below 768px */
+@media (width < 768px) {
   .hero-corporate {
-    height: 400px;
+    background-image: var(--hero-bg-mobile, var(--hero-bg-desktop));
   }
 }

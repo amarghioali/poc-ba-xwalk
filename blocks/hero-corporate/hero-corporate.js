@@ -1,39 +1,32 @@
 /**
- * Hero Corporate block — responsive desktop/mobile image switching.
+ * Hero Corporate block — responsive desktop/mobile image via CSS background-image.
  *
- * Content model (2 rows, 1 column each):
- *   Row 1: desktop image (field:image)
- *   Row 2: mobile image  (field:mobileImage)
+ * Content model (1 row, 2 columns):
+ *   Column 1: desktop image (field:image)
+ *   Column 2: mobile image  (field:mobile_image)
  *
- * Decoration creates a <picture> element with a <source media="(max-width: 768px)">
- * so the browser loads the correct image per viewport.
+ * CSS custom properties (--hero-bg-desktop, --hero-bg-mobile) are set early
+ * by setupHeroEarly() in scripts.js for fast LCP rendering.
+ * This decorate function handles cleanup and fallback.
  */
 export default function decorate(block) {
-  const rows = [...block.children];
-  if (rows.length < 2) return;
+  const row = block.children[0];
+  if (!row) return;
 
-  const desktopImg = rows[0].querySelector('img');
-  const mobileImg = rows[1].querySelector('img');
+  const cols = [...row.children];
 
-  if (!desktopImg) return;
-
-  // Build <picture> with responsive sources
-  const picture = document.createElement('picture');
-
-  if (mobileImg) {
-    const source = document.createElement('source');
-    source.setAttribute('media', '(max-width: 768px)');
-    source.setAttribute('srcset', mobileImg.src);
-    picture.appendChild(source);
+  // Fallback: set custom properties if not already set by scripts.js
+  if (!block.style.getPropertyValue('--hero-bg-desktop')) {
+    const desktopImg = cols[0]?.querySelector('img');
+    const mobileImg = cols[1]?.querySelector('img');
+    if (desktopImg) {
+      block.style.setProperty('--hero-bg-desktop', `url('${desktopImg.src}')`);
+    }
+    if (mobileImg) {
+      block.style.setProperty('--hero-bg-mobile', `url('${mobileImg.src}')`);
+    }
   }
 
-  const img = document.createElement('img');
-  img.src = desktopImg.src;
-  img.alt = desktopImg.alt || '';
-  img.setAttribute('loading', 'eager');
-  picture.appendChild(img);
-
-  // Replace block content with just the picture
+  // Clear block content — images are rendered as CSS backgrounds
   block.textContent = '';
-  block.appendChild(picture);
 }

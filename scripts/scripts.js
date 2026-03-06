@@ -112,6 +112,42 @@ export function decorateMain(main) {
 }
 
 /**
+ * Early hero image setup — runs before block JS to eliminate render delay.
+ * Sets CSS custom properties and preloads the hero image so the background-image
+ * renders as soon as the block CSS loads (no waiting for block JS).
+ */
+function setupHeroEarly(main) {
+  const hero = main.querySelector('.hero-corporate');
+  if (!hero) return;
+
+  const row = hero.children[0];
+  if (!row) return;
+
+  const cols = [...row.children];
+  const desktopImg = cols[0]?.querySelector('img');
+  const mobileImg = cols[1]?.querySelector('img');
+
+  if (desktopImg) {
+    // Set CSS custom properties early so background-image is defined when CSS loads
+    hero.style.setProperty('--hero-bg-desktop', `url('${desktopImg.src}')`);
+
+    // Preload the hero image with high priority
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = desktopImg.src;
+    link.fetchPriority = 'high';
+    document.head.appendChild(link);
+  }
+  if (mobileImg) {
+    hero.style.setProperty('--hero-bg-mobile', `url('${mobileImg.src}')`);
+  }
+
+  // Hide content row to avoid flash of unstyled images
+  row.style.display = 'none';
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
@@ -124,6 +160,7 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
+    setupHeroEarly(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
