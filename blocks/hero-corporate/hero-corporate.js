@@ -18,10 +18,14 @@ export default function decorate(block) {
     const desktopImg = rows[0].querySelector('img');
     const mobileImg = rows[1].querySelector('img');
     if (desktopImg) {
-      block.style.setProperty('--hero-bg-desktop', `url('${desktopImg.src}')`);
+      const url = new URL(desktopImg.src, window.location.origin);
+      url.searchParams.delete('width');
+      block.style.setProperty('--hero-bg-desktop', `url('${url.href}')`);
     }
     if (mobileImg) {
-      block.style.setProperty('--hero-bg-mobile', `url('${mobileImg.src}')`);
+      const url = new URL(mobileImg.src, window.location.origin);
+      url.searchParams.delete('width');
+      block.style.setProperty('--hero-bg-mobile', `url('${url.href}')`);
     }
   }
 

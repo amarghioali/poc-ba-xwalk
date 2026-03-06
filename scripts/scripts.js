@@ -115,6 +115,9 @@ export function decorateMain(main) {
  * Early hero image setup — runs before block JS to eliminate render delay.
  * Sets CSS custom properties and preloads the hero image so the background-image
  * renders as soon as the block CSS loads (no waiting for block JS).
+ *
+ * Strips the ?width param that EDS adds to <img> tags so the full-resolution
+ * original is fetched. CSS background-size handles the visual sizing.
  */
 function setupHeroEarly(main) {
   const hero = main.querySelector('.hero-corporate');
@@ -125,17 +128,22 @@ function setupHeroEarly(main) {
   const mobileImg = rows[1]?.querySelector('img');
 
   if (desktopImg) {
-    hero.style.setProperty('--hero-bg-desktop', `url('${desktopImg.src}')`);
+    const url = new URL(desktopImg.src, window.location.origin);
+    url.searchParams.delete('width');
+    const desktopSrc = url.href;
+    hero.style.setProperty('--hero-bg-desktop', `url('${desktopSrc}')`);
 
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
-    link.href = desktopImg.src;
+    link.href = desktopSrc;
     link.fetchPriority = 'high';
     document.head.appendChild(link);
   }
   if (mobileImg) {
-    hero.style.setProperty('--hero-bg-mobile', `url('${mobileImg.src}')`);
+    const url = new URL(mobileImg.src, window.location.origin);
+    url.searchParams.delete('width');
+    hero.style.setProperty('--hero-bg-mobile', `url('${url.href}')`);
   }
 
   // Hide content rows to avoid flash of unstyled images
