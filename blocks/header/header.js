@@ -185,10 +185,16 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
+  // Assign nav classes by content (EDS fragment decoration may reorder sections)
+  const sections = [...nav.querySelectorAll(':scope > .section')];
+  sections.forEach((section, i) => {
+    if (i === 0) {
+      section.classList.add('nav-brand');
+    } else if (section.querySelector('.default-content-wrapper > ul')) {
+      section.classList.add('nav-sections');
+    } else {
+      section.classList.add('nav-tools');
+    }
   });
 
   const navBrand = nav.querySelector('.nav-brand');

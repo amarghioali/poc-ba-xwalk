@@ -58,8 +58,8 @@ header nav[aria-expanded='true'] {
     grid-template:
       'brand tools' 90px
       'sections sections' 70px / auto 1fr;
-    max-width: 1264px;
-    padding: 0 32px;
+    max-width: none;
+    padding: 0;
     gap: 0;
     height: 160px;
     color: #fff;
@@ -181,25 +181,22 @@ header nav .nav-brand img {
 
 @media (width >= 900px) {
   header .nav-brand {
-    font-size: 36px;
     flex-basis: auto;
+    padding-left: 24px;
   }
 
   header nav .nav-brand a:any-link {
-    color: #fff;
+    display: block;
+    width: 230px;
+    height: 48px;
+    background: url('../../icons/aig-logo-white.svg') no-repeat 0 50% / contain;
+    text-indent: -9999px;
+    overflow: hidden;
   }
 
-  /* AIG Logo Box */
+  /* AIG Logo Box — hidden on desktop (SVG logo used instead) */
   header .nav-brand .aig-logo-box {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid currentcolor;
-    padding: 1px 6px;
-    margin-right: 6px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    line-height: 1.1;
+    display: none;
   }
 }
 
@@ -243,6 +240,9 @@ header nav .nav-sections ul > li > ul > li {
     color: var(--text-color);
     align-items: center;
     height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
   }
 
   header nav[aria-expanded='true'] .nav-sections {
@@ -398,6 +398,7 @@ header nav .nav-tools .button {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    padding-right: 24px;
   }
 
   header nav .nav-tools .default-content-wrapper {
@@ -474,19 +475,28 @@ header .breadcrumbs ol li[aria-current] {
   }
 }
 
-/* Compact scrolled header (desktop) */
+/* Compact scrolled header (desktop) — slide-down animation */
+@keyframes header-slide-down {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
 @media (width >= 900px) {
   header .nav-wrapper.header-scrolled {
     background: #fff;
     box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
-    transition: background 0.3s ease;
+    animation: header-slide-down 0.4s ease forwards;
   }
 
+  /* Single-row grid, content constrained to body width */
   header .nav-wrapper.header-scrolled nav {
     grid-template:
       'brand sections tools' 77px / auto 1fr auto;
     height: 77px;
     color: var(--text-color);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
   }
 
   header .nav-wrapper.header-scrolled nav[aria-expanded='true'] {
@@ -495,26 +505,23 @@ header .breadcrumbs ol li[aria-current] {
     height: 77px;
   }
 
-  /* Brand: navy text instead of white */
+  /* Brand: blue logo, no extra padding (nav padding handles it) */
   header .nav-wrapper.header-scrolled .nav-brand {
-    font-size: 18px;
+    padding-left: 0;
   }
 
   header .nav-wrapper.header-scrolled .nav-brand a:any-link {
-    color: var(--text-color);
+    width: 190px;
+    height: 41px;
+    background-image: url('../../icons/aig-logo-blue.svg');
   }
 
-  header .nav-wrapper.header-scrolled .nav-brand .aig-logo-box {
-    border-color: var(--aig-navy);
-    color: var(--aig-navy);
-    padding: 0 4px;
-    letter-spacing: 2px;
-  }
-
-  /* Sections: nav links with vertical dividers */
+  /* Sections: flow naturally within the constrained grid */
   header .nav-wrapper.header-scrolled .nav-sections {
     color: var(--text-color);
     justify-content: center;
+    max-width: none;
+    margin: 0;
   }
 
   header .nav-wrapper.header-scrolled .nav-sections a:any-link {
@@ -561,7 +568,11 @@ header .breadcrumbs ol li[aria-current] {
     border-right: 1px solid #e6e6e6;
   }
 
-  /* Tools: hide text links, keep only search icon */
+  /* Tools: hide text links, keep only search icon, no extra padding */
+  header .nav-wrapper.header-scrolled .nav-tools {
+    padding-right: 0;
+  }
+
   header .nav-wrapper.header-scrolled .nav-tools .default-content-wrapper > p {
     display: none;
   }
