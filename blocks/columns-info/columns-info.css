@@ -1,0 +1,84 @@
+/* Columns Info Block - AIG Japan multi-column layout */
+
+.columns-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s);
+}
+
+.columns-info img {
+  width: 100%;
+  display: block;
+}
+
+.columns-info > div > div {
+  order: 1;
+}
+
+.columns-info > div > .columns-info-img-col {
+  order: 0;
+}
+
+.columns-info > div > .columns-info-img-col img {
+  display: block;
+}
+
+/* Button-like links within columns */
+.columns-info a.button:any-link {
+  display: flex;
+  align-items: center;
+  min-height: 80px;
+  padding: 20px 40px 20px 24px;
+  background-color: var(--aig-blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--body-font-size-s);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-button);
+  white-space: normal;
+  text-align: left;
+  line-height: 1.4;
+  gap: 12px;
+}
+
+.columns-info a.button.secondary:any-link {
+  background-color: var(--aig-blue);
+}
+
+.columns-info a.button.tertiary:any-link {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Column headings */
+.columns-info h3,
+.columns-info h4 {
+  color: var(--text-color);
+  margin-top: 0;
+}
+
+/* Paragraphs within columns */
+.columns-info p {
+  margin-top: 0;
+  line-height: 1.6;
+}
+
+/* Links within columns */
+.columns-info a:any-link:not(.button) {
+  color: var(--link-color);
+}
+
+@media (width >= 900px) {
+  .columns-info > div {
+    align-items: stretch;
+    flex-direction: row;
+    gap: var(--spacing-s);
+  }
+
+  .columns-info > div > div {
+    flex: 1;
+    order: unset;
+  }
+}

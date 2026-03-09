@@ -1,0 +1,39 @@
+{
+  "variantName": "tabs-product",
+  "baseBlock": "tabs",
+  "version": "1.0.0",
+  "created": "2026-03-04T08:41:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.aig.co.jp/",
+    "originPage": "AIG Japan corporate homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "product-tabs",
+    "imagePattern": "noimg"
+  },
+  "contentPattern": {
+    "structure": "tab-title + buttons-grid + cta",
+    "buttonCount": 6,
+    "imageCount": 0
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "product category browsing",
+      "insurance product selection",
+      "multi-category content switching"
+    ],
+    "notSuitableFor": [
+      "FAQ sections",
+      "content with heavy images",
+      "single-category content"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/content/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-03-04T08:41:00.000Z"
+  }
+}

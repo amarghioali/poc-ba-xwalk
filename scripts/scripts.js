@@ -112,6 +112,45 @@ export function decorateMain(main) {
 }
 
 /**
+ * Early hero image setup — runs before block JS to eliminate render delay.
+ * Sets CSS custom properties and preloads the hero image so the background-image
+ * renders as soon as the block CSS loads (no waiting for block JS).
+ *
+ * Strips the ?width param that EDS adds to <img> tags so the full-resolution
+ * original is fetched. CSS background-size handles the visual sizing.
+ */
+function setupHeroEarly(main) {
+  const hero = main.querySelector('.hero-corporate');
+  if (!hero) return;
+
+  const rows = [...hero.children];
+  const desktopImg = rows[0]?.querySelector('img');
+  const mobileImg = rows[1]?.querySelector('img');
+
+  if (desktopImg) {
+    const url = new URL(desktopImg.src, window.location.origin);
+    url.searchParams.delete('width');
+    const desktopSrc = url.href;
+    hero.style.setProperty('--hero-bg-desktop', `url('${desktopSrc}')`);
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = desktopSrc;
+    link.fetchPriority = 'high';
+    document.head.appendChild(link);
+  }
+  if (mobileImg) {
+    const url = new URL(mobileImg.src, window.location.origin);
+    url.searchParams.delete('width');
+    hero.style.setProperty('--hero-bg-mobile', `url('${url.href}')`);
+  }
+
+  // Hide content rows to avoid flash of unstyled images
+  rows.forEach((row) => { row.style.display = 'none'; });
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
@@ -124,6 +163,7 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
+    setupHeroEarly(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }

@@ -185,10 +185,16 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
+  // Assign nav classes by content (EDS fragment decoration may reorder sections)
+  const sections = [...nav.querySelectorAll(':scope > .section')];
+  sections.forEach((section, i) => {
+    if (i === 0) {
+      section.classList.add('nav-brand');
+    } else if (section.querySelector('.default-content-wrapper > ul')) {
+      section.classList.add('nav-sections');
+    } else {
+      section.classList.add('nav-tools');
+    }
   });
 
   const navBrand = nav.querySelector('.nav-brand');
@@ -196,31 +202,199 @@ export default async function decorate(block) {
   if (brandLink) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
+    // Wrap "AIG" in logo box
+    const brandText = brandLink.textContent;
+    if (brandText.startsWith('AIG')) {
+      const aigBox = document.createElement('span');
+      aigBox.className = 'aig-logo-box';
+      aigBox.textContent = 'AIG';
+      brandLink.textContent = brandText.substring(3);
+      brandLink.prepend(aigBox);
+    }
   }
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-      navSection.addEventListener('click', () => {
-        if (isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
-      });
     });
     navSections.querySelectorAll('.button-container').forEach((buttonContainer) => {
       buttonContainer.classList.remove('button-container');
       buttonContainer.querySelector('.button').classList.remove('button');
     });
+
+    // Build mega menu panels from nested content
+    const megaMenuPanels = [];
+    navSections.querySelectorAll('.default-content-wrapper > ul > li').forEach((li, index) => {
+      const link = li.querySelector(':scope > a');
+      const iconSpan = li.querySelector(':scope > .icon');
+      const subMenu = li.querySelector(':scope > ul');
+
+      // Wrap link + icon in .nav-item-content for hover targeting
+      if (link) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'nav-item-content';
+        wrapper.append(link);
+        if (iconSpan) wrapper.append(iconSpan);
+        li.prepend(wrapper);
+      }
+
+      // Build mega menu panel from nested <ul>
+      if (subMenu) {
+        const panel = document.createElement('div');
+        panel.className = 'mega-menu-panel';
+        panel.setAttribute('data-nav-index', index);
+
+        const inner = document.createElement('div');
+        inner.className = 'mega-menu-inner';
+
+        const items = [...subMenu.querySelectorAll(':scope > li')];
+
+        // First item is the primary "top" link
+        if (items.length > 0) {
+          const primaryItem = items.shift();
+          const primaryDiv = document.createElement('div');
+          primaryDiv.className = 'mega-menu-primary';
+          primaryDiv.innerHTML = primaryItem.innerHTML;
+          inner.append(primaryDiv);
+        }
+
+        // Remaining items are columns
+        if (items.length > 0) {
+          const columnsDiv = document.createElement('div');
+          columnsDiv.className = 'mega-menu-columns';
+
+          items.forEach((item) => {
+            const col = document.createElement('div');
+            col.className = 'mega-menu-column';
+
+            const heading = item.querySelector(':scope > strong');
+            if (heading) {
+              const headingDiv = document.createElement('div');
+              headingDiv.className = 'mega-menu-heading';
+              headingDiv.innerHTML = heading.innerHTML;
+              col.append(headingDiv);
+            }
+
+            const colLinks = item.querySelector(':scope > ul');
+            if (colLinks) {
+              col.append(colLinks.cloneNode(true));
+            }
+
+            columnsDiv.append(col);
+          });
+
+          inner.append(columnsDiv);
+        }
+
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'mega-menu-close';
+        closeBtn.setAttribute('aria-label', 'Close menu');
+        closeBtn.addEventListener('click', () => {
+          panel.classList.remove('open');
+          li.setAttribute('aria-expanded', 'false');
+        });
+        inner.append(closeBtn);
+
+        panel.append(inner);
+        megaMenuPanels.push({ li, panel, index });
+
+        // Remove original sub-menu from DOM (content moved to panel)
+        subMenu.remove();
+      }
+
+      // Click handler for top-level nav items
+      if (link) {
+        li.addEventListener('click', (e) => {
+          if (!isDesktop.matches) return;
+          const target = megaMenuPanels.find((p) => p.index === index);
+          if (!target) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          const isOpen = target.panel.classList.contains('open');
+
+          // Close all panels first
+          megaMenuPanels.forEach((p) => {
+            p.panel.classList.remove('open');
+            p.li.setAttribute('aria-expanded', 'false');
+          });
+
+          if (!isOpen) {
+            target.panel.classList.add('open');
+            li.setAttribute('aria-expanded', 'true');
+          }
+        });
+      }
+    });
+
+    // Store panels for appending to navWrapper later
+    nav.megaMenuPanels = megaMenuPanels;
   }
 
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
     const search = navTools.querySelector('a[href*="search"]');
-    if (search && search.textContent === '') {
+    if (search) {
       search.setAttribute('aria-label', 'Search');
+      const searchP = search.closest('p');
+
+      // Unwrap <strong> added by decorateButtons so <a> fills the full click area
+      const searchStrong = searchP.querySelector('strong');
+      if (searchStrong) searchStrong.replaceWith(...searchStrong.childNodes);
+      search.classList.remove('button', 'primary');
+      searchP.classList.remove('button-container');
+
+      // Build search dropdown panel
+      const searchDropdown = document.createElement('div');
+      searchDropdown.className = 'search-dropdown';
+      searchDropdown.innerHTML = `<input type="search" placeholder="商品名やキーワードを入力" aria-label="Search">
+        <button type="button" class="search-dropdown-btn">検索</button>`;
+
+      // Prevent link navigation
+      search.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+
+      // Toggle dropdown on the full search button area
+      searchP.addEventListener('click', () => {
+        const isOpen = searchDropdown.classList.contains('open');
+        searchDropdown.classList.toggle('open');
+        searchP.classList.toggle('search-open');
+        if (!isOpen) {
+          searchDropdown.querySelector('input').focus();
+        }
+      });
+
+      // Close on Escape
+      searchDropdown.addEventListener('keydown', (e) => {
+        if (e.code === 'Escape') {
+          searchDropdown.classList.remove('open');
+          if (searchP) searchP.classList.remove('search-open');
+          search.focus();
+        }
+      });
+
+      // Search button action
+      searchDropdown.querySelector('button').addEventListener('click', () => {
+        const query = searchDropdown.querySelector('input').value.trim();
+        if (query) {
+          window.location.href = `/sonpo/search?q=${encodeURIComponent(query)}`;
+        }
+      });
+
+      // Enter key in input triggers search
+      searchDropdown.querySelector('input').addEventListener('keydown', (e) => {
+        if (e.code === 'Enter') {
+          e.preventDefault();
+          searchDropdown.querySelector('button').click();
+        }
+      });
+
+      // Store reference for later appending to navWrapper
+      nav.searchDropdown = searchDropdown;
     }
   }
 
@@ -240,7 +414,54 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
+  if (nav.searchDropdown) navWrapper.append(nav.searchDropdown);
+
+  // Append mega menu panels to navWrapper for full-width positioning
+  if (nav.megaMenuPanels) {
+    nav.megaMenuPanels.forEach((p) => navWrapper.append(p.panel));
+  }
   block.append(navWrapper);
+
+  // Close mega menus on click outside
+  document.addEventListener('click', (e) => {
+    if (!navWrapper.contains(e.target)) {
+      if (nav.megaMenuPanels) {
+        nav.megaMenuPanels.forEach((p) => {
+          p.panel.classList.remove('open');
+          p.li.setAttribute('aria-expanded', 'false');
+        });
+      }
+    }
+  });
+
+  // Close mega menus on Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && nav.megaMenuPanels) {
+      nav.megaMenuPanels.forEach((p) => {
+        if (p.panel.classList.contains('open')) {
+          p.panel.classList.remove('open');
+          p.li.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+
+  // Compact header on scroll (desktop only)
+  if (isDesktop.matches) {
+    const scrollThreshold = 90;
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > scrollThreshold) {
+        navWrapper.classList.add('header-scrolled');
+      } else {
+        navWrapper.classList.remove('header-scrolled');
+      }
+    }, { passive: true });
+  }
+  isDesktop.addEventListener('change', (e) => {
+    if (!e.matches) {
+      navWrapper.classList.remove('header-scrolled');
+    }
+  });
 
   if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
     navWrapper.append(await buildBreadcrumbs());

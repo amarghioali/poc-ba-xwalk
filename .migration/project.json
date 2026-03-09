@@ -1,0 +1,12 @@
+{
+  "type": "xwalk",
+  "projectType": "xwalk",
+  "libraryUrl": "https://main--sta-xwalk-boilerplate--aemysites.aem.page/tools/sidekick/library.json",
+  "contentSource": "https://author-p130360-e1585120.adobeaemcloud.com/bin/franklin.delivery/amarghioali/poc-ba-xwalk/main",
+  "contentHostUrl": "author-p130360-e1585120.adobeaemcloud.com",
+  "aemSitePath": "/content/poc-ba-xwalk",
+  "aemAssetsFolderPath": "/content/dam/poc-ba-xwalk",
+  "aemSiteName": "poc-ba-xwalk",
+  "aemSiteTitle": "poc-ba-xwalk",
+  "baseUrl": "https://aig.co.jp"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "success",
+  "url": "https://www.aig.co.jp/",
+  "path": "index",
+  "timestamp": "2026-03-04T09:15:26.378Z",
+  "title": "AIG損害保険株式会社 - AIG損保 公式サイト",
+  "template": "homepage",
+  "blocks": [
+    "hero-corporate",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "columns-info",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "tabs-product"
+  ]
+}
